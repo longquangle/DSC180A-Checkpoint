@@ -1,0 +1,87 @@
+data explained form json file:
+└── root/
+    └── sample0/
+        ├── name/
+        │   └── ex: 'sample0'
+        ├── storage_slot/
+        │   ├── slot/
+        │   │   └── ex: 'A1'
+        │   └── tray/
+        │       └── ex: 'Tray2'
+        ├── substrate/
+        │   └── ex: 'ITO'
+        ├── worklist/
+        │   └── list of steps with every step being a dictionary in a list
+        └── hotplate_slot/
+            ├── hotplate/
+            │   └── ex: 'Hotplate1'
+            └── slot/
+                └── ex: 'B3'
+
+https://tree.nathanfriend.io/?s=(%27options!(%27fancy7~fullPath!false~trailingSlash7~roJDJ7)~E(%27E%27roJ8*F-name-.F4-9orage_55.A14trayL.Tray24*-sub9rate-.ITO4-workKLK%20ofGs%20with%20everyG%20beingCdictionary%20inCK-h6_5h6L.H6145.B3%228%27)~version!%271%27)*%20%20-8**.*ex%3A%20%224%22L5slJL6Jplate7!true8%5Cn9stC%20a%20Esource!Fsample0G%209epJotKli9L-*%01LKJGFEC987654.-*
+
+
+
+
+
+def extract_drop(step):
+    """input the step as a dictionary to extract out the steps in the drops characterization
+    Parameter
+    ----------
+    step : dict
+        The dictionary of drops step in the 
+        
+    Returns
+    ----------
+        The flattened dictionary of all the metadata of the drops step
+        
+    ex: extract_drop({'drops': [{'air_gap': True, 'blow_out': True, 'height': 2, 'pre_mix': [3, 50], 
+    'rate': 80, 'reuse_tip': False, 'slow_retract': True, 'slow_travel': False, 'solution': {'molarity': 1.4, 
+    'solutes': 'Xu-Recipe-PSK', 'solvent': 'DMF0.75_DMSO0.25', 'well': {'labware': '15mL_Tray1', 'well': 'A4'}}, 'time': -5, 
+    'touch_tip': True, 'volume': 40},  {'air_gap': True, 'blow_out': False, 'height': 0.5, 'pre_mix': [3, 100], 
+    'rate': 450.0,  'reuse_tip': True, 'slow_retract': True, 'slow_travel': True, 'solution': {'molarity': 0, 
+    'solutes': '', 'solvent': 'MethylAcetate', 'well': {'labware': '15mL_Tray1', 'well': 'C4'}}, 
+    'time': 30.0, 'touch_tip': False, 'volume': 75.0}], 'duration': 112, 'start_times': [5], 'steps': 
+    [{'acceleration': 2000.0, 'duration': 50.0, 'rpm': 5000.0}]})
+    
+    >>> {'drop1': {'air_gap': True, 'blow_out': True, 'height': 2, 'pre_mix': [3, 50], 'rate': 80,
+  'reuse_tip': False, 'slow_retract': True,'slow_travel': False,'solution': {'molarity': 1.4,'solutes': 
+  'Xu-Recipe-PSK','solvent': 'DMF0.75_DMSO0.25','well': {'labware': '15mL_Tray1', 'well': 'A4'}},'time': -5,
+  'touch_tip': True, 'volumn': 40}, 
+  
+  'drop2': {'air_gap': True, 'blow_out': False, 'height': 0.5, 'pre_mix': [3, 100], 'rate': 450.0,'reuse_tip': True,
+  'slow_retract': True,'slow_travel': True,'solution': {'molarity': 0,'solutes': '','solvent': 'MethylAcetate',
+  'well': {'labware': '15mL_Tray1', 'well': 'C4'}},'time': 30.0,'touch_tip': False,'volumn': 75.0}}
+        
+    """
+    result = {}
+    drop_step = step['drops']
+    # every drop_step is a list of steps that the solution is dropped. Most of them seem to have 2 steps
+    i = 1
+    for single_drop in drop_step:
+        air_gap = single_drop['air_gap']
+        blow_out = single_drop['blow_out']
+        height = single_drop['height']
+        pre_mix = single_drop['pre_mix']
+        rate = single_drop['rate'] # i think it is spin rate
+        reuse_tip = single_drop['reuse_tip']
+        slow_retract = single_drop['slow_retract']
+        slow_travel = single_drop['slow_travel']
+        solution = single_drop['solution'] # there can be many solutes, how should we deal with this?
+        time = single_drop['time']
+        touch_tip = single_drop['touch_tip']
+        volumn = single_drop['volume']
+        result['drop{}'.format(i)] = {'air_gap': air_gap, 
+                                      'blow_out': blow_out, 
+                                      'height': height, 
+                                      'pre_mix': pre_mix, 
+                                      'rate': rate, 
+                                      'reuse_tip': reuse_tip, 
+                                      'slow_retract': slow_retract, 
+                                      'slow_travel': slow_travel, 
+                                      'solution': solution, 
+                                      'time': time, 
+                                      'touch_tip': touch_tip, 
+                                      'volumn': volumn}
+        i += 1
+    return result
